@@ -30,8 +30,6 @@ const PALConfig pal_default_config =
   {VAL_GPIOCODR, VAL_GPIOCCRL, VAL_GPIOCCRH},
   {VAL_GPIODODR, VAL_GPIODCRL, VAL_GPIODCRH},
   {VAL_GPIOEODR, VAL_GPIOECRL, VAL_GPIOECRH},
-  {VAL_GPIOFODR, VAL_GPIOFCRL, VAL_GPIOFCRH},
-  {VAL_GPIOGODR, VAL_GPIOGCRL, VAL_GPIOGCRH},
 };
 #endif
 
@@ -48,5 +46,4 @@ void __early_init(void) {
  * Board-specific initialization code.
  */
 void boardInit(void) {
-	//AFIO->MAPR |= AFIO_MAPR_USART1_REMAP; //Remap UART1 to 58 and 59 pins
 }

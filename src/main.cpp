@@ -1,11 +1,7 @@
 #include <ch.hpp>
 #include <hal.h>
 #include <node.hpp>
-#include <uavcan/uavcan.hpp>
-
-
-__attribute__((weak))
-void *__dso_handle;
+//#include <uavcan/uavcan.hpp>
 
 using namespace chibios_rt;
 
@@ -17,9 +13,9 @@ protected:
     virtual msg_t main(void) {
         setName("blinker");
         while (TRUE) {
-            palClearPad(GPIOC, GPIOC_LED1);
+            palClearPad(GPIOB, GPIOB_LED);
             chThdSleepMilliseconds(500);
-            palSetPad(GPIOC, GPIOC_LED1);
+            palSetPad(GPIOB, GPIOB_LED);
             chThdSleepMilliseconds(500);
         }
     }
@@ -42,7 +38,7 @@ int main(void) {
      *   RTOS is active.
      */
     halInit();
-    System::init();
+    chSysInit();
 
     node::init();
 
@@ -51,15 +47,16 @@ int main(void) {
     /*
      * Starts the blinker thread.
      */
-    blinker.start(NORMALPRIO - 1);
+    blinker.start(NORMALPRIO);
 
+    //palSetPad(GPIOA, GPIOA_CAM_VCC_EN);
     /*
      * Normal main() thread activity, in this demo it does nothing except
      * sleeping in a loop.
      */
-    printf("Test app starting");
+   // printf("Test app starting");
     while (TRUE) {
-        //BaseThread::sleep((MS2ST(1000)));
+        BaseThread::sleep((MS2ST(1000)));
       //  node.spin(uavcan::MonotonicDuration::fromMSec(1000));
     }
 }

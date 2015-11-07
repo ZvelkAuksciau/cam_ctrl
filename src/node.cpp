@@ -2,14 +2,13 @@
 
 #include <ch.hpp>
 #include <hal.h>
+#include <camera.hpp>
 #include <uavcan_stm32/uavcan_stm32.hpp>
-
-#include <uavcan/protocol/debug/KeyValue.hpp> // uavcan.protocol.debug.KeyValue
-
+#include <uavcan/equipment/camera/CameraCommand.hpp>
 
 namespace node{
 
-static constexpr int RxQueueSize = 64;
+static constexpr int RxQueueSize = 20;
 static constexpr std::uint32_t BitRate = 1000000;
 
 uavcan::ISystemClock& getSystemClock()
@@ -46,20 +45,18 @@ static Node& getNode()
     return node;
 }
 
-class NodeThread: public chibios_rt::BaseStaticThread<3000> {
+class NodeThread: public chibios_rt::BaseStaticThread<1500> {
     protected:
         virtual msg_t main(void) {
             run();
             return 0; //should never be reached
         }
     public:
-        NodeThread(void) : chibios_rt::BaseStaticThread<3000>() {
+        NodeThread(void) : chibios_rt::BaseStaticThread<1500>() {
         }
     };
 
 static NodeThread node_thread;
-
-uavcan::Publisher<uavcan::protocol::debug::KeyValue> kv_pub(getNode());
 
 int init(){
 
@@ -73,7 +70,7 @@ int init(){
     auto& node = getNode();
 
     node.setNodeID(self_node_id);
-    node.setName("org.kmti.elload");
+    node.setName("org.kmti.cam.control");
 
     /*
      * Start the node.
@@ -85,10 +82,31 @@ int init(){
         return node_start_res;
     }
 
-    const int kv_pub_init_res = kv_pub.init();
-    if (kv_pub_init_res < 0) {
-        printf("Failed to start the publisher; error: %i", kv_pub_init_res);
-    }
+    uavcan::Subscriber<uavcan::equipment::camera::CameraCommand> camera_sub(node);
+
+    const int camera_sub_start_res =
+            camera_sub.start(
+                    [&](const uavcan::ReceivedDataStructure<uavcan::equipment::camera::CameraCommand>& msg)
+                    {
+                        printf("Yay, we got a message!");
+                        switch(msg.command_type) {
+                            case msg.COMMAND_TAKE_PICTURE:
+                            take_picture();
+                            break;
+                            case msg.COMMAND_TURN_ON:
+                            turn_on_camera();
+                            break;
+                            case msg.COMMAND_TURN_OFF:
+                            turn_off_camera();
+                            break;
+                        }
+                    });
+
+    if (camera_sub_start_res < 0) {
+            printf("Camera subscriber: subscriber failed to start with error %d", camera_sub_start_res);
+            return camera_sub_start_res;
+     }
+
     /*
      * Informing other nodes that we're ready to work.
      * Default mode is INITIALIZING.
@@ -101,7 +119,7 @@ int init(){
 
 void node_spin_once()
 {
-    const int spin_res = getNode().spin(uavcan::MonotonicDuration::fromMSec(200));
+    const int spin_res = getNode().spinOnce(/*uavcan::MonotonicDuration::fromMSec(20)*/);
     if (spin_res < 0) {
         printf("node spin error %i", spin_res);
     }
@@ -110,17 +128,8 @@ void node_spin_once()
 void run()
 {
     while (1) {
-        node_spin_once();  // Non-blocking
-
-        uavcan::protocol::debug::KeyValue kv_msg;  // Always zero initialized
-        kv_msg.value = std::rand() / float(RAND_MAX);
-        kv_msg.key = "a";   // "a"
-        kv_msg.key += "b";  // "ab"
-        kv_msg.key += "c";  // "abc"
-        const int pub_res = kv_pub.broadcast(kv_msg);
-        if (pub_res < 0) {
-            printf("KV publication failure: %i", pub_res);
-        }
+        node_spin_once();
+        chThdSleepMilliseconds(1);
     }
 }
 }

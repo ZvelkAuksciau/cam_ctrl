@@ -1,7 +1,11 @@
 # Compiler options here.
 USE_OPT = -Os -fomit-frame-pointer -falign-functions=16
-USE_OPT += -fno-exceptions --specs=nosys.specs 
-USE_OPT += -lc -lgcc -nostartfiles #--specs=nano.specs #-lc -lgcc -lm -nodefaultlibs 
+USE_OPT += -fno-exceptions #--specs=nosys.specs 
+USE_OPT += -nostartfiles --specs=nano.specs -lc -lgcc -lm -nodefaultlibs
+#USE_OPT += -ffunction-sections -fdata-sections -fno-common 
+#USE_OPT += -fno-unwind-tables -fno-stack-protector 
+#USE_OPT += -ftracer -ftree-loop-distribute-patterns 
+#USE_OPT += -frename-registers -freorder-blocks -fconserve-stack  
 
 # C specific options here (added to USE_OPT).
 USE_COPT = -std=c99
@@ -28,7 +32,7 @@ USE_VERBOSE_COMPILE = no
 #
 # Project, sources and paths
 
-PROJECT = el_load
+PROJECT = cam_ctrl
 
 UDEFS = -DFW_VERSION_MAJOR=0 -DFW_VERSION_MINOR=1
 
@@ -41,7 +45,7 @@ include $(CHIBIOS)/os/ports/GCC/ARMCMx/STM32F1xx/port.mk
 include $(CHIBIOS)/os/kernel/kernel.mk
 include $(CHIBIOS)/os/various/cpp_wrappers/kernel.mk
 
-LDSCRIPT= $(PORTLD)/STM32F103xC.ld
+LDSCRIPT= $(PORTLD)/STM32F103xB.ld
 
 VARIOUSSRC = $(CHIBIOS)/os/various/syscalls.c    \
              $(CHIBIOS)/os/various/chprintf.c    \
@@ -60,6 +64,8 @@ CSRC += $(wildcard src/*.c)	    \
 		$(wildcard src/*/*.c)	\
 		$(wildcard src/*/*/*.c)
 
+#CPPSRC = src/main.cpp
+#CPPSRC = 
 CPPSRC = $(wildcard src/*.cpp)	\
 		 $(wildcard src/*/*.cpp)
 		 
