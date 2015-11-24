@@ -39,15 +39,21 @@
 #define STM32F10X_MD
 
 /*
- * GPIO
+ * Board status
  */
-// Misc
+#define TAKING_PICTURE      0x01
+#define TURNING_CAMERA_ON   0x02
+#define TURNING_CAMERA_OFF  0x04
+#define BOOTING_UP          0x08
+#define ACTIVE_COMMS        0x10
+#define CAMERA_IS_ON        0x20
+
 
 /*
  * IO pins assignments.
  */
 #define GPIOA_CAM_VCC_EN        8
-#define GPIOA_IR_LED           15
+#define GPIOA_ON_OFF           15
 #define GPIOB_LED	            0
 #define GPIOB_CAM_TRIG_CTRL     9
 #define GPIOC_CAM_POWER_BUT    13
@@ -85,10 +91,10 @@
  * PA10 - Digital input              (USART1_RX).
  * PA11 - Digital input with PullUp  (CAN_RX).
  * PA12 - Alternate Push Pull output (CAN_TX).
- * PA15 - Push Pull output 10MHz.    (IR_LED).
+ * PA15 - Digital input.             (ON_OFF_BUTTON).
  */
-#define VAL_GPIOACRL            0x11111111      /*  PA7...PA0 */
-#define VAL_GPIOACRH            0x188B84F1      /* PA15...PA8 */
+#define VAL_GPIOACRL            0x88888888      /*  PA7...PA0 */
+#define VAL_GPIOACRH            0x488B84F1      /* PA15...PA8 */
 #define VAL_GPIOAODR            0x00000000
 
 /*
@@ -115,8 +121,8 @@
  * PD0  - Digital input (XTAL).
  * PD1  - Digital input (XTAL).
  */
-#define VAL_GPIODCRL            0x11111144      /*  PD7...PD0 */
-#define VAL_GPIODCRH            0x11111111      /* PD15...PD8 */
+#define VAL_GPIODCRL            0x88888844      /*  PD7...PD0 */
+#define VAL_GPIODCRH            0x88888888      /* PD15...PD8 */
 #define VAL_GPIODODR            0xFFFFFFFF
 
 /*

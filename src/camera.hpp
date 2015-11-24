@@ -8,6 +8,8 @@
 #ifndef SRC_CAMERA_HPP_
 #define SRC_CAMERA_HPP_
 
+void init_camera();
+void turn_camera_vcc(bool on);
 void take_picture();
 void turn_on_camera();
 void turn_off_camera();

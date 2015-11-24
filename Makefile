@@ -64,9 +64,10 @@ CSRC += $(wildcard src/*.c)	    \
 		$(wildcard src/*/*.c)	\
 		$(wildcard src/*/*/*.c)
 
-#CPPSRC = src/main.cpp
-#CPPSRC = 
-CPPSRC = $(wildcard src/*.cpp)	\
+CPPSRC = src/main.cpp src/camera.cpp \
+		 $(wildcard src/sys/*.cpp)
+
+#CPPSRC = $(wildcard src/*.cpp)	\
 		 $(wildcard src/*/*.cpp)
 		 
 CPPSRC += $(CHCPPSRC)
@@ -82,11 +83,11 @@ UDEFS += -DUAVCAN_STM32_CHIBIOS=1      \
 		 -DRELEASE_BUILD=1
 		 
 include modules/libuavcan/libuavcan/include.mk
-CPPSRC+= $(LIBUAVCAN_SRC)
+#CPPSRC+= $(LIBUAVCAN_SRC)
 UINCDIR = $(LIBUAVCAN_INC)
 
 include modules/libuavcan/libuavcan_drivers/stm32/driver/include.mk
-CPPSRC += $(LIBUAVCAN_STM32_SRC)
+#CPPSRC += $(LIBUAVCAN_STM32_SRC)
 UINCDIR += $(LIBUAVCAN_STM32_INC)
 
 # Invoke DSDL compiler and add its default output directory to the include search path
@@ -102,7 +103,8 @@ ASMSRC = $(PORTASM)
 
 INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
          $(HALINC) $(PLATFORMINC) $(BOARDINC) $(CHCPPINC)\
-         $(CHIBIOS)/os/various os_config src src/sys
+         $(CHIBIOS)/os/various os_config src src/sys \
+         src/mavlink/common
 
 #
 # Project, sources and paths
