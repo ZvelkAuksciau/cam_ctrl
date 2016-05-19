@@ -159,7 +159,7 @@ int main(void) {
     /*
      * Starts the blinker thread.
      */
-    blinker.start(NORMALPRIO-1);
+    blinker.start(NORMALPRIO-10);
 
     sdStart(&SD1, NULL); //UART1 for mavlink comms (38400)
 
@@ -184,7 +184,7 @@ int main(void) {
     // Copy the message to the send buffer
     uint16_t len = mavlink_msg_to_send_buffer(buf, &msg);
 
-    serial_t.start(NORMALPRIO);
+    serial_t.start(HIGHPRIO);
 
     g_boardstatus &= ~BOOTING_UP;
 
