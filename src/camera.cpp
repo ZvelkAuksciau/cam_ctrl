@@ -58,6 +58,7 @@ protected:
             }
             chThdSleepMilliseconds(10);
         }
+        return 0;
     }
 public:
     CameraThread(void) : BaseStaticThread<128>() {
