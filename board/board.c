@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006-2013 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
     limitations under the License.
 */
 
-#include "ch.h"
 #include "hal.h"
 
 /**
@@ -39,11 +38,28 @@ const PALConfig pal_default_config =
  * any other initialization.
  */
 void __early_init(void) {
+
   stm32_clock_init();
 }
+
+#if HAL_USE_MMC_SPI
+/* Board-related functions related to the MMC_SPI driver.*/
+bool mmc_lld_is_card_inserted(MMCDriver *mmcp) {
+
+  (void)mmcp;
+  return palReadPad(GPIOC, GPIOC_MMCCP);
+}
+
+bool mmc_lld_is_write_protected(MMCDriver *mmcp) {
+
+  (void)mmcp;
+  return !palReadPad(GPIOC, GPIOC_MMCWP);
+}
+#endif
 
 /*
  * Board-specific initialization code.
  */
 void boardInit(void) {
+  //AFIO->MAPR |= AFIO_MAPR_TIM2_REMAP;
 }

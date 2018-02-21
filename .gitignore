@@ -1,9 +1,6 @@
+build/*
 .dep/*
-build/*
-build/*
-dsdlc_generated/*
-
-#Eclipse project files
 .cproject
 .project
-.settings
+.settings/*
+dsdlc_generated/*

@@ -1,62 +1,45 @@
-#include <ch.hpp>
+#include <ch.h>
 #include <hal.h>
-#include <node.hpp>
-//#include <uavcan/uavcan.hpp>
+#include <math.h>
 
-using namespace chibios_rt;
+#include "node.hpp"
 
 /*
- * LED blinker thread, times are in milliseconds.
+ * standard 9600 baud serial config.
  */
-class BlinkerThread : public BaseStaticThread<128> {
-protected:
-    virtual msg_t main(void) {
-        setName("blinker");
-        while (TRUE) {
-            palClearPad(GPIOB, GPIOB_LED);
-            chThdSleepMilliseconds(500);
-            palSetPad(GPIOB, GPIOB_LED);
-            chThdSleepMilliseconds(500);
-        }
-    }
-public:
-    BlinkerThread(void) : BaseStaticThread<128>() {
-    }
+static const SerialConfig serialCfg = {
+  9600,
+  0,
+  0,
+  0
 };
-static BlinkerThread blinker;
 
-/*
- * Application entry point.
- */
-int main(void) {
 
-    /*
-     * System initializations.
-     * - HAL initialization, this also initializes the configured device drivers
-     *   and performs the board-specific initializations.
-     * - Kernel initialization, the main() function becomes a thread and the
-     *   RTOS is active.
-     */
-    halInit();
-    chSysInit();
+static THD_WORKING_AREA(waThread1, 128);
+void Thread1(void) {
+  chRegSetThreadName("blinker");
 
-    node::init();
-
-    //static node_handler::Node node(node_handler::getCanDriver(), node_handler::getSystemClock());
-
-    /*
-     * Starts the blinker thread.
-     */
-    blinker.start(NORMALPRIO);
-
-    //palSetPad(GPIOA, GPIOA_CAM_VCC_EN);
-    /*
-     * Normal main() thread activity, in this demo it does nothing except
-     * sleeping in a loop.
-     */
-   // printf("Test app starting");
-    while (TRUE) {
-        BaseThread::sleep((MS2ST(1000)));
-      //  node.spin(uavcan::MonotonicDuration::fromMSec(1000));
-    }
+  while(1) {
+    palClearPad(GPIOB, GPIOB_LED);
+    chThdSleepMilliseconds(500);
+    palSetPad(GPIOB, GPIOB_LED);
+    chThdSleepMilliseconds(500);
+  }
 }
+
+static Node::uavcanNodeThread canNode;
+
+int main(void) {
+  halInit();
+  chSysInit();
+  sdStart(&SD1, &serialCfg);
+
+  chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO, (tfunc_t)Thread1, NULL);
+
+  canNode.start(NORMALPRIO);
+
+  while(1) {
+    chThdSleepMilliseconds(500);
+  }
+}
+

@@ -1,5 +1,5 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006-2013 Giovanni Di Sirio
+    ChibiOS - Copyright (C) 2006..2016 Giovanni Di Sirio
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -21,22 +21,20 @@
 /*
  * Board identifier.
  */
-#define BOARD_LOAD_REV_A
+#define BOARD_CAM_CONTROL
 #define BOARD_NAME              "cam_ctrl Rev. A"
 
 /*
  * Board frequencies.
  */
 #define STM32_LSECLK            0
-
 #define STM32_HSECLK            16000000
-/*#define STM32_HSE_BYPASS*/
 
 
 /*
  * MCU type, supported types are defined in ./os/hal/platforms/hal_lld.h.
  */
-#define STM32F10X_MD
+#define STM32F103xB
 
 /*
  * GPIO

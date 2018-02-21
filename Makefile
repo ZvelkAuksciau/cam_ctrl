@@ -1,108 +1,176 @@
+##############################################################################
+# Build global options
+# NOTE: Can be overridden externally.
+#
+
 # Compiler options here.
-USE_OPT = -Os -fomit-frame-pointer -falign-functions=16
-USE_OPT += -fno-exceptions #--specs=nosys.specs 
-USE_OPT += -nostartfiles --specs=nano.specs -lc -lgcc -lm -nodefaultlibs
-#USE_OPT += -ffunction-sections -fdata-sections -fno-common 
-#USE_OPT += -fno-unwind-tables -fno-stack-protector 
-#USE_OPT += -ftracer -ftree-loop-distribute-patterns 
-#USE_OPT += -frename-registers -freorder-blocks -fconserve-stack  
+ifeq ($(USE_OPT),)
+  USE_OPT = -O1 -ggdb -fomit-frame-pointer -falign-functions=16
+ # USE_OPT += -nodefaultlibs
+endif
 
 # C specific options here (added to USE_OPT).
-USE_COPT = -std=c99
+ifeq ($(USE_COPT),)
+  USE_COPT = 
+endif
 
 # C++ specific options here (added to USE_OPT).
-USE_CPPOPT += -std=c++11 -fno-rtti -fno-exceptions -fno-threadsafe-statics
+ifeq ($(USE_CPPOPT),)
+  USE_CPPOPT = -fno-rtti
+endif
 
 # Enable this if you want the linker to remove unused code and data
-USE_LINK_GC = yes
+ifeq ($(USE_LINK_GC),)
+  USE_LINK_GC = yes
+endif
 
 # Linker extra options here.
-USE_LDOPT = 
+ifeq ($(USE_LDOPT),)
+  USE_LDOPT = 
+endif
 
 # Enable this if you want link time optimizations (LTO)
-USE_LTO = no
+ifeq ($(USE_LTO),)
+  USE_LTO = yes
+endif
 
 # If enabled, this option allows to compile the application in THUMB mode.
-USE_THUMB = yes
+ifeq ($(USE_THUMB),)
+  USE_THUMB = yes
+endif
 
 # Enable this if you want to see the full log while compiling.
-USE_VERBOSE_COMPILE = no
+ifeq ($(USE_VERBOSE_COMPILE),)
+  USE_VERBOSE_COMPILE = no
+endif
+
+# If enabled, this option makes the build process faster by not compiling
+# modules not used in the current configuration.
+ifeq ($(USE_SMART_BUILD),)
+  USE_SMART_BUILD = yes
+endif
+
+#
+# Build global options
+##############################################################################
+USE_CPPOPT += -std=c++11 -fno-rtti -fno-exceptions -fno-threadsafe-statics
+USE_COPT += -std=c99
 
 ##############################################################################
+# Architecture or project specific options
 #
+
+# Stack size to be allocated to the Cortex-M process stack. This stack is
+# the stack used by the main() thread.
+ifeq ($(USE_PROCESS_STACKSIZE),)
+  USE_PROCESS_STACKSIZE = 0x400
+endif
+
+# Stack size to the allocated to the Cortex-M main/exceptions stack. This
+# stack is used for processing interrupts and exceptions.
+ifeq ($(USE_EXCEPTIONS_STACKSIZE),)
+  USE_EXCEPTIONS_STACKSIZE = 0x400
+endif
+
+# Enables the use of FPU (no, softfp, hard).
+ifeq ($(USE_FPU),)
+  USE_FPU = no
+endif
+
+#
+# Architecture or project specific options
+##############################################################################
+
+##############################################################################
 # Project, sources and paths
+#
 
-PROJECT = cam_ctrl
-
-UDEFS = -DFW_VERSION_MAJOR=0 -DFW_VERSION_MINOR=1
+# Define project name here
+PROJECT = gcm_firmware
 
 # Imported source files and paths
 CHIBIOS = modules/ChibiOS
-include board/board.mk
-include $(CHIBIOS)/os/hal/platforms/STM32F1xx/platform.mk
+UAVCAN = modules/libuavcan
+# Startup files.
+include $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC/mk/startup_stm32f1xx.mk
+# HAL-OSAL files (optional).
 include $(CHIBIOS)/os/hal/hal.mk
-include $(CHIBIOS)/os/ports/GCC/ARMCMx/STM32F1xx/port.mk
-include $(CHIBIOS)/os/kernel/kernel.mk
-include $(CHIBIOS)/os/various/cpp_wrappers/kernel.mk
+include $(CHIBIOS)/os/hal/ports/STM32/STM32F1xx/platform.mk
+include $(CHIBIOS)/os/hal/osal/rt/osal.mk
+# RTOS files (optional).
+include $(CHIBIOS)/os/rt/rt.mk
+include $(CHIBIOS)/os/common/ports/ARMCMx/compilers/GCC/mk/port_v7m.mk
+include $(CHIBIOS)/os/various/cpp_wrappers/chcpp.mk
 
-LDSCRIPT= $(PORTLD)/STM32F103xB.ld
+# Define linker script file here
+LDSCRIPT= $(STARTUPLD)/STM32F103xB.ld
 
-VARIOUSSRC = $(CHIBIOS)/os/various/syscalls.c    \
-             $(CHIBIOS)/os/various/chprintf.c    \
-             $(CHIBIOS)/os/various/shell.c       \
-             $(CHIBIOS)/os/various/memstreams.c  \
-             $(CHIBIOS)/os/various/evtimer.c
-
-CSRC = $(PORTSRC) \
+# C sources that can be compiled in ARM or THUMB mode depending on the global
+# setting.
+CSRC = $(STARTUPSRC) \
        $(KERNSRC) \
-       $(TESTSRC) \
+       $(PORTSRC) \
+       $(OSALSRC) \
        $(HALSRC) \
        $(PLATFORMSRC) \
-       $(BOARDSRC) \
-	   
-CSRC += $(wildcard src/*.c)	    \
-		$(wildcard src/*/*.c)	\
-		$(wildcard src/*/*/*.c)
+       $(CHIBIOS)/os/various/syscalls.c \
+       board/board.c
 
-#CPPSRC = src/main.cpp
-#CPPSRC = 
-CPPSRC = $(wildcard src/*.cpp)	\
-		 $(wildcard src/*/*.cpp)
-		 
+# C++ sources that can be compiled in ARM or THUMB mode depending on the global
+# setting.
 CPPSRC += $(CHCPPSRC)
-
-#
-# UAVCAN library
-#
-
-UDEFS += -DUAVCAN_STM32_CHIBIOS=1      \
-		 -DUAVCAN_STM32_NUM_IFACES=1   \
-	     -DUAVCAN_STM32_TIMER_NUMBER=2 \
-		 -DSTDOUT_SD=SD1 -DSTDIN_SD=STDOUT_SD \
-		 -DRELEASE_BUILD=1
+CPPSRC += $(shell find src -type f -name '*.cpp')
 		 
-include modules/libuavcan/libuavcan/include.mk
-CPPSRC+= $(LIBUAVCAN_SRC)
-UINCDIR = $(LIBUAVCAN_INC)
+UDEFS += -DUAVCAN_STM32_CHIBIOS=1 \
+		 -DUAVCAN_STM32_TIMER_NUMBER=2 \
+		 -DUAVCAN_STM32_NUM_IFACES=1 \
+		 -DUAVCAN_CPP_VERSION=UAVCAN_CPP11 \
+		 -DUAVCAN_TINY=0
+		 
+include $(UAVCAN)/libuavcan/include.mk
+CPPSRC += $(LIBUAVCAN_SRC)
+UINCDIR += $(LIBUAVCAN_INC)
 
-include modules/libuavcan/libuavcan_drivers/stm32/driver/include.mk
+include $(UAVCAN)/libuavcan_drivers/stm32/driver/include.mk
 CPPSRC += $(LIBUAVCAN_STM32_SRC)
 UINCDIR += $(LIBUAVCAN_STM32_INC)
 
 # Invoke DSDL compiler and add its default output directory to the include search path
-#$(info $(shell $(LIBUAVCAN_DSDLC) $(UAVCAN_DSDL_DIR)))
-UINCDIR += dsdlc_generated
+$(info $(shell python $(LIBUAVCAN_DSDLC) $(UAVCAN_DSDL_DIR)))
+UINCDIR += dsdlc_generated      # This is where the generated headers are stored by default
 
-#
-# End ov UAVCAN libray
-#
+# C sources to be compiled in ARM mode regardless of the global setting.
+# NOTE: Mixing ARM and THUMB mode enables the -mthumb-interwork compiler
+#       option that results in lower performance and larger code size.
+ACSRC =
+
+# C++ sources to be compiled in ARM mode regardless of the global setting.
+# NOTE: Mixing ARM and THUMB mode enables the -mthumb-interwork compiler
+#       option that results in lower performance and larger code size.
+ACPPSRC =
+
+# C sources to be compiled in THUMB mode regardless of the global setting.
+# NOTE: Mixing ARM and THUMB mode enables the -mthumb-interwork compiler
+#       option that results in lower performance and larger code size.
+TCSRC =
+
+# C sources to be compiled in THUMB mode regardless of the global setting.
+# NOTE: Mixing ARM and THUMB mode enables the -mthumb-interwork compiler
+#       option that results in lower performance and larger code size.
+TCPPSRC =
 
 # List ASM source files here
-ASMSRC = $(PORTASM)
+ASMSRC =
+ASMXSRC = $(STARTUPASM) $(PORTASM) $(OSALASM)
 
-INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
-         $(HALINC) $(PLATFORMINC) $(BOARDINC) $(CHCPPINC)\
-         $(CHIBIOS)/os/various os_config src src/sys
+INCDIR = src board $(CHIBIOS)/os/license \
+         $(STARTUPINC) $(KERNINC) $(PORTINC) $(OSALINC) \
+         $(HALINC) $(PLATFORMINC) $(BOARDINC) $(TESTINC) \
+         $(CHIBIOS)/os/various $(CHCPPINC)
+         
+UINCDIR += src src/sys
+
+
 
 #
 # Project, sources and paths
@@ -114,6 +182,7 @@ INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
 
 MCU  = cortex-m3
 
+#TRGT = arm-elf-
 TRGT = arm-none-eabi-
 CC   = $(TRGT)gcc
 CPPC = $(TRGT)g++
@@ -124,6 +193,7 @@ CPPC = $(TRGT)g++
 LD   = $(TRGT)g++
 CP   = $(TRGT)objcopy
 AS   = $(TRGT)gcc -x assembler-with-cpp
+AR   = $(TRGT)ar
 OD   = $(TRGT)objdump
 SZ   = $(TRGT)size
 HEX  = $(CP) -O ihex
@@ -133,13 +203,35 @@ BIN  = $(CP) -O binary
 AOPT =
 
 # THUMB-specific options here
-TOPT = -mthumb -DTHUMB=1
+TOPT = -mthumb -DTHUMB
 
-CWARN += -Wall -Wextra -Werror -Wstrict-prototypes
-CPPWARN += -Wall -Wextra -Werror
+# Define C warning options here
+CWARN = -Wall -Wextra -Wundef -Wstrict-prototypes
 
-# asm statement fix
-DDEFS += -Dasm=__asm
+# Define C++ warning options here
+CPPWARN = -Wall -Wextra -Wundef
 
-RULESPATH = $(CHIBIOS)/os/ports/GCC/ARMCMx
+#
+# Compiler settings
+##############################################################################
+
+##############################################################################
+# Start of user section
+#
+
+# Define ASM defines here
+UADEFS =
+
+# List the user directory to look for the libraries here
+ULIBDIR =
+
+# List all user libraries here
+ULIBS =
+
+#
+# End of user defines
+##############################################################################
+
+RULESPATH = $(CHIBIOS)/os/common/startup/ARMCMx/compilers/GCC
 include $(RULESPATH)/rules.mk
+

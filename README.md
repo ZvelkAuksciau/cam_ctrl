@@ -1,2 +1,1 @@
-# cam_ctrl
-Camera contorl REV A
+# Suopis_gimbal_cont

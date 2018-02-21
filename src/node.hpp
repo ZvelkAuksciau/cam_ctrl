@@ -1,17 +1,20 @@
-#ifndef SRC_NODE_HPP_
-#define SRC_NODE_HPP_
+#ifndef NODE_HPP
+#define NODE_HPP
 
 #include <uavcan/uavcan.hpp>
+#include <ch.hpp>
 
-namespace node{
+namespace Node {
 
-constexpr unsigned NodeMemoryPoolSize = 4096;
-typedef uavcan::Node<NodeMemoryPoolSize> Node;
+  constexpr unsigned NodePoolSize = 400;
+  uavcan::Node<NodePoolSize>& getNode();
 
-uavcan::ISystemClock& getSystemClock();
-uavcan::ICanDriver& getCanDriver();
-int init();
-void run();
+  class uavcanNodeThread : public chibios_rt::BaseStaticThread<4000> {
+    public:
+      void main();
+  };
+
 }
 
-#endif /* SRC_NODE_HPP_ */
+#endif
+
