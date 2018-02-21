@@ -137,6 +137,7 @@ UINCDIR += $(LIBUAVCAN_STM32_INC)
 
 # Invoke DSDL compiler and add its default output directory to the include search path
 $(info $(shell python $(LIBUAVCAN_DSDLC) $(UAVCAN_DSDL_DIR)))
+$(info $(shell python $(LIBUAVCAN_DSDLC) modules/kmti_dsdl/kmti))
 UINCDIR += dsdlc_generated      # This is where the generated headers are stored by default
 
 # C sources to be compiled in ARM mode regardless of the global setting.

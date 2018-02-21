@@ -3,4 +3,7 @@
 	url = https://github.com/ChibiOS/ChibiOS.git
 [submodule "modules/libuavcan"]
 	path = modules/libuavcan
-	url = https://github.com/MRazgunas/libuavcan.git
+	url = https://github.com/UAVCAN/libuavcan.git
+[submodule "modules/kmti_dsdl"]
+	path = modules/kmti_dsdl
+	url = https://github.com/MRazgunas/kmti_dsdl.git

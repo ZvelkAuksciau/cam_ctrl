@@ -86,7 +86,7 @@
  * PA15 - Push Pull output 10MHz.    (IR_LED).
  */
 #define VAL_GPIOACRL            0x11111111      /*  PA7...PA0 */
-#define VAL_GPIOACRH            0x188B84F1      /* PA15...PA8 */
+#define VAL_GPIOACRH            0x388B84F1      /* PA15...PA8 */
 #define VAL_GPIOAODR            0x00000000
 
 /*
