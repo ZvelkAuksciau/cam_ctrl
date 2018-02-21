@@ -1,6 +1,6 @@
 [submodule "modules/ChibiOS"]
 	path = modules/ChibiOS
-	url = https://github.com/DroneBuster/ChibiOS.git
+	url = https://github.com/MRazgunas/ChibiOS.git
 [submodule "modules/libuavcan"]
 	path = modules/libuavcan
-	url = https://github.com/DroneBuster/libuavcan.git
+	url = https://github.com/MRazgunas/libuavcan.git
