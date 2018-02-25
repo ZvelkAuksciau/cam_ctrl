@@ -27,7 +27,7 @@
 /*
  * Board frequencies.
  */
-#define STM32_LSECLK            0
+#define STM32_LSECLK            0//32768
 #define STM32_HSECLK            16000000
 
 
@@ -86,7 +86,7 @@
  * PA15 - Push Pull output 10MHz.    (IR_LED).
  */
 #define VAL_GPIOACRL            0x11111111      /*  PA7...PA0 */
-#define VAL_GPIOACRH            0x388B84F1      /* PA15...PA8 */
+#define VAL_GPIOACRH            0x388B44F1      /* PA15...PA8 */
 #define VAL_GPIOAODR            0x00000000
 
 /*
@@ -96,7 +96,7 @@
  * PB9  - Push Pull output 10MHz     (CAM_TRIG_CTRL).
  */
 #define VAL_GPIOBCRL            0x88888881      /*  PB7...PB0 */
-#define VAL_GPIOBCRH            0x88888818      /* PB15...PB8 */
+#define VAL_GPIOBCRH            0x88888858      /* PB15...PB8 */
 #define VAL_GPIOBODR            0x00000000
 /*
  * Port C setup.

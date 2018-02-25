@@ -63,7 +63,7 @@ USE_COPT += -std=c99
 # Stack size to be allocated to the Cortex-M process stack. This stack is
 # the stack used by the main() thread.
 ifeq ($(USE_PROCESS_STACKSIZE),)
-  USE_PROCESS_STACKSIZE = 0x400
+  USE_PROCESS_STACKSIZE = 0x2000
 endif
 
 # Stack size to the allocated to the Cortex-M main/exceptions stack. This
@@ -77,16 +77,12 @@ ifeq ($(USE_FPU),)
   USE_FPU = no
 endif
 
-#
-# Architecture or project specific options
-##############################################################################
-
 ##############################################################################
 # Project, sources and paths
 #
 
 # Define project name here
-PROJECT = gcm_firmware
+PROJECT = cam_ctrl
 
 # Imported source files and paths
 CHIBIOS = modules/ChibiOS
@@ -124,8 +120,7 @@ CPPSRC += $(shell find src -type f -name '*.cpp')
 UDEFS += -DUAVCAN_STM32_CHIBIOS=1 \
 		 -DUAVCAN_STM32_TIMER_NUMBER=2 \
 		 -DUAVCAN_STM32_NUM_IFACES=1 \
-		 -DUAVCAN_CPP_VERSION=UAVCAN_CPP11 \
-		 -DUAVCAN_TINY=0
+		 -DUAVCAN_CPP_VERSION=UAVCAN_CPP11
 		 
 include $(UAVCAN)/libuavcan/include.mk
 CPPSRC += $(LIBUAVCAN_SRC)

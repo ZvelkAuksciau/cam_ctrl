@@ -62,4 +62,5 @@ bool mmc_lld_is_write_protected(MMCDriver *mmcp) {
  */
 void boardInit(void) {
   //AFIO->MAPR |= AFIO_MAPR_TIM2_REMAP;
+   // AFIO->MAPR |= AFIO_MAPR_CAN_REMAP_REMAP2;
 }
